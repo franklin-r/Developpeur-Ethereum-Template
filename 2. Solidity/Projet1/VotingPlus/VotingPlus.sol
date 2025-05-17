@@ -3,6 +3,7 @@
 pragma solidity 0.8.30;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract VotingPlus is Ownable {
 
@@ -39,13 +40,16 @@ contract VotingPlus is Ownable {
     error DidntVoteYet(address _addr);
     error WorkflowFinished();
     error NoWinnerFound();
+    error DoesntHaveGovernanceToken(address _addr);
+    error NotEnoughGovernanceToken(address _addr);
 
-    uint[] public winningProposalIds;
+    uint[] private winningProposalIds;
     mapping (address => Voter) public registeredVoters;
     address[] private registeredVotersAddr; // Track registered addresses to reset the corresponding mapping when wanted
     Proposal[] public proposals;
     mapping (string => bool) private existingProposals; // Track existing proposals to avoid duplicates
     WorkflowStatus public currentStatus;
+    IERC20 public governanceToken;
 
     modifier checkStatus(WorkflowStatus _status) {
         require(_status == currentStatus, WrongStatus(_status));
@@ -57,9 +61,16 @@ contract VotingPlus is Ownable {
         _;
     }
 
-    constructor() Ownable(msg.sender) { }
+    modifier checkGovernanceTokenBalance(address _addr) {
+        require(governanceToken.balanceOf(_addr) > 0, DoesntHaveGovernanceToken(_addr));
+        _;
+    }
 
-    function registerVoter(address _addr) external onlyOwner() checkStatus(WorkflowStatus.RegisteringVoters) {
+    constructor(address _tokenAddress) Ownable(msg.sender) {
+        governanceToken = IERC20(_tokenAddress);
+    }
+
+    function registerVoter(address _addr) external onlyOwner() checkStatus(WorkflowStatus.RegisteringVoters) checkGovernanceTokenBalance(_addr) {
         registeredVoters[_addr] = Voter(true, false, 0);
         registeredVotersAddr.push(_addr);
         emit VoterRegistered(_addr);
@@ -73,13 +84,14 @@ contract VotingPlus is Ownable {
     }
 
     function registerProposal(string calldata _description) external checkStatus(WorkflowStatus.ProposalsRegistrationStarted) checkVoterRegistration(msg.sender) {
+        require(governanceToken.balanceOf(msg.sender) * 100 / governanceToken.totalSupply() >= 1, NotEnoughGovernanceToken(msg.sender));    // Requires 1% of total supply to make a proposal
         require(!existingProposals[_description], AlreadyExistingProposal(_description));
         proposals.push(Proposal(_description, 0));
         existingProposals[_description] = true;
         emit ProposalRegistered(proposals.length - 1);
     }
 
-    function vote(uint _proposalId) external checkStatus(WorkflowStatus.VotingSessionStarted) checkVoterRegistration(msg.sender) {
+    function vote(uint _proposalId) external checkStatus(WorkflowStatus.VotingSessionStarted) checkVoterRegistration(msg.sender) checkGovernanceTokenBalance(msg.sender) {
         require(!registeredVoters[msg.sender].hasVoted, AlreadyVoted(msg.sender));
         require(_proposalId < proposals.length, UnexistingProposalId(_proposalId));
         proposals[_proposalId].voteCount += 1;
@@ -125,7 +137,7 @@ contract VotingPlus is Ownable {
         }
         for (uint i = 0; i < registeredVotersAddr.length; i++) {
             registeredVoters[registeredVotersAddr[i]] = Voter(false, false, 0);
-        }
+        } 
         delete proposals;
     }
 }

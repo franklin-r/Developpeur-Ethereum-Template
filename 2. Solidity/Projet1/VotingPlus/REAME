@@ -2,3 +2,6 @@ Additional features:
 
 - Once a vote has been completed (votes tallied), the owner can reset the workflow to start a new vote.
 - In case of tie, getWinner() now returns all the ex-aequo winners.
+- Add a governance token for the vote:
+  * Only people with governance tokens can register and vote.
+  * Only with at least 1% of the total supply can make a proposal.
