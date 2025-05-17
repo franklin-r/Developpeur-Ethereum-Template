@@ -42,8 +42,9 @@ contract VotingPlus is Ownable {
 
     uint private winningProposalId;
     mapping (address => Voter) public registeredVoters;
+    address[] private registeredVotersAddr; // Track registered addresses to reset the corresponding mapping when wanted
     Proposal[] public proposals;
-    mapping (string => bool) private existingProposals;
+    mapping (string => bool) private existingProposals; // Track existing proposals to avoid duplicates
     WorkflowStatus public currentStatus;
 
     modifier checkStatus(WorkflowStatus _status) {
@@ -60,6 +61,7 @@ contract VotingPlus is Ownable {
 
     function registerVoter(address _addr) external onlyOwner() checkStatus(WorkflowStatus.RegisteringVoters) {
         registeredVoters[_addr] = Voter(true, false, 0);
+        registeredVotersAddr.push(_addr);
         emit VoterRegistered(_addr);
     }
 
@@ -103,5 +105,17 @@ contract VotingPlus is Ownable {
     function consultVote(address _addr) external view checkVoterRegistration(msg.sender) returns (uint) {
         require(registeredVoters[msg.sender].hasVoted, DidntVoteYet(_addr));
         return registeredVoters[_addr].votedProposalId;
+    }
+
+    function resetWorkflow() external onlyOwner() checkStatus(WorkflowStatus.VotesTallied) {
+        winningProposalId = 0;
+        currentStatus = WorkflowStatus.RegisteringVoters;
+        for (uint i = 0; i < proposals.length; i++) {
+            existingProposals[proposals[i].description] = false;
+        }
+        for (uint i = 0; i < registeredVotersAddr.length; i++) {
+            registeredVoters[registeredVotersAddr[i]] = Voter(false, false, 0);
+        }
+        delete proposals;
     }
 }
