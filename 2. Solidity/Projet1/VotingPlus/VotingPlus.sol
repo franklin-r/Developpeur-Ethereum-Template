@@ -40,7 +40,7 @@ contract VotingPlus is Ownable {
     error WorkflowFinished();
     error NoWinnerFound();
 
-    uint private winningProposalId;
+    uint[] public winningProposalIds;
     mapping (address => Voter) public registeredVoters;
     address[] private registeredVotersAddr; // Track registered addresses to reset the corresponding mapping when wanted
     Proposal[] public proposals;
@@ -89,17 +89,27 @@ contract VotingPlus is Ownable {
     }
 
     function tallyVotes() external onlyOwner() checkStatus(WorkflowStatus.VotingSessionEnded) {
+        winningProposalIds.push(0);
         for (uint i = 1; i < proposals.length; i++) {
-            if (proposals[i].voteCount > proposals[winningProposalId].voteCount) {
-                winningProposalId = i;
+            if (proposals[i].voteCount == proposals[winningProposalIds[0]].voteCount) {
+                winningProposalIds.push(i);
+            }
+            else if (proposals[i].voteCount > proposals[winningProposalIds[0]].voteCount) {
+                delete winningProposalIds;
+                winningProposalIds.push(i);
             }
         }
         advanceStatus();
     }
 
-    function getWinner() external view checkStatus(WorkflowStatus.VotesTallied) returns (string memory) {
+    function getWinner() external view checkStatus(WorkflowStatus.VotesTallied) returns (string[] memory) {
         require(proposals.length != 0, NoWinnerFound());
-        return proposals[winningProposalId].description;
+        uint nWinningProposals = winningProposalIds.length;
+        string[] memory winningProposals = new string[](nWinningProposals);
+        for(uint i = 0; i < nWinningProposals; i++) {
+            winningProposals[i] = proposals[winningProposalIds[i]].description;
+        }
+        return winningProposals;
     }
 
     function consultVote(address _addr) external view checkVoterRegistration(msg.sender) returns (uint) {
@@ -108,7 +118,7 @@ contract VotingPlus is Ownable {
     }
 
     function resetWorkflow() external onlyOwner() checkStatus(WorkflowStatus.VotesTallied) {
-        winningProposalId = 0;
+        delete winningProposalIds;
         currentStatus = WorkflowStatus.RegisteringVoters;
         for (uint i = 0; i < proposals.length; i++) {
             existingProposals[proposals[i].description] = false;
