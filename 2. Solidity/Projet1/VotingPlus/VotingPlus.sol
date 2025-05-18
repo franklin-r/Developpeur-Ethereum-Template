@@ -94,7 +94,7 @@ contract VotingPlus is Ownable {
     function vote(uint _proposalId) external checkStatus(WorkflowStatus.VotingSessionStarted) checkVoterRegistration(msg.sender) checkGovernanceTokenBalance(msg.sender) {
         require(!registeredVoters[msg.sender].hasVoted, AlreadyVoted(msg.sender));
         require(_proposalId < proposals.length, UnexistingProposalId(_proposalId));
-        proposals[_proposalId].voteCount += 1;
+        proposals[_proposalId].voteCount += governanceToken.balanceOf(msg.sender);
         registeredVoters[msg.sender].hasVoted = true;
         registeredVoters[msg.sender].votedProposalId = _proposalId;
         emit Voted(msg.sender, _proposalId);

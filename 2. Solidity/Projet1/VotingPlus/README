@@ -5,3 +5,4 @@ Additional features:
 - Add a governance token for the vote:
   * Only people with governance tokens can register and vote.
   * Only with at least 1% of the total supply can make a proposal.
+  * vote is proportional to balance of governance token.
