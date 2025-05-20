@@ -6,10 +6,11 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract GovernanceToken is ERC20 {
 
-    uint private rate = 1000;   // 1 ETH = 1000 GT
+    uint private rate = 1000;   // 1 wei = 1000 GTbits
 
     error TransferFailed();
     error InsufficientBalance();
+    error InsufficientValue();
     
     constructor() ERC20("GovernanceToken", "GT") {
     }
@@ -22,10 +23,12 @@ contract GovernanceToken is ERC20 {
         _mint(msg.sender, _value * rate);
     }
 
+    // _value in bits
     function sellTokens(uint _value) external {
-        require(balanceOf(msg.sender) >= _value * 10**decimals(), InsufficientBalance());
-        (bool success, ) = address(msg.sender).call{value: _value * 10**decimals() / rate}("");
+        require(balanceOf(msg.sender) >= _value, InsufficientBalance());
+        require(balanceOf(msg.sender) >= rate, InsufficientValue());
+        (bool success, ) = address(msg.sender).call{value: _value / rate}("");
         require(success, TransferFailed());
-        _burn(msg.sender, _value * 10**decimals());
+        _burn(msg.sender, _value);
     }
 }
