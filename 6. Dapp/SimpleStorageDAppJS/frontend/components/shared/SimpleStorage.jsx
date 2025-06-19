@@ -76,7 +76,7 @@ const SimpleStorage = () => {
 			address: contractAddress,
 			event: parseAbiItem("event NumberChanged(uint oldValue, uint newValue)"),
 			// From first block
-			fromBlock: 0n,
+			fromBlock: 8583254n,
 			// To last block
 			toBlock: "latest"
 		})
