@@ -141,6 +141,10 @@ contract Voting is Ownable {
         // Incrémente le compteur de votes de la proposition
         proposalsArray[_id].voteCount++;
 
+				if (proposalsArray[_id].voteCount > proposalsArray[winningProposalID].voteCount) {
+					winningProposalID = _id;
+				}
+
         // Émet l'événement de vote
         emit Voted(msg.sender, _id);
     }
@@ -197,19 +201,6 @@ contract Voting is Ownable {
     function tallyVotes() external onlyOwner {
         // Vérifie si on est dans la phase de fin de session de vote
         require(workflowStatus == WorkflowStatus.VotingSessionEnded, "Current status is not voting session ended");
-        // Variable temporaire pour stocker l'ID de la proposition gagnante
-        uint _winningProposalId;
-        // Parcourt toutes les propositions pour trouver celle avec le plus de votes
-        for (uint256 p = 0; p < proposalsArray.length; p++) {
-            // Compare le nombre de votes de la proposition courante avec la meilleure proposition actuelle
-            if (proposalsArray[p].voteCount > proposalsArray[_winningProposalId].voteCount) {
-                // Met à jour l'ID de la proposition gagnante si nécessaire
-                _winningProposalId = p;
-            }
-        }
-        // Stocke l'ID de la proposition gagnante
-        winningProposalID = _winningProposalId;
-        
         // Change l'état vers la fin du processus (votes comptabilisés)
         workflowStatus = WorkflowStatus.VotesTallied;
         // Émet l'événement de changement d'état
