@@ -7,12 +7,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { useStatusContext } from "@/contexts/StatusContext";
+import { useStatusContext } from "@/contexts/StatusProvider";
 import { WorkflowStatus } from "@/constants";
 
 const Status = () => {
 
-	const {status, isStatusPending} = useStatusContext();
+	const {status, isLoading} = useStatusContext();
 
 	return (
 		<Card className="text-center min-h-[200px]">
@@ -21,7 +21,7 @@ const Status = () => {
 			</CardHeader>
 			<CardContent>
 				<div>
-					{isStatusPending ? (
+					{isLoading ? (
 						"Loading..."
 					) : (
 						WorkflowStatus[status as number]

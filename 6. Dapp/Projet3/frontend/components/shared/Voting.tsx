@@ -25,21 +25,6 @@ const Voting = () => {
 	})
 	
 	return (
-		<StatusContext.Provider value={{status: data as WorkflowStatus, isStatusPending, isStatusSuccess, refetchStatus: refetch}}>
-			<div className="mb-5">
-				<Information />
-			</div>
-			<div className="mb-5">
-				<Action />
-			</div>
-			<div className="mb-5">
-				<Event />
-			</div>
-		</StatusContext.Provider>
-	);
-	
-	/*
-	return (
 		<StatusProvider>
 			<div className="mb-5">
 				<Information />
@@ -52,7 +37,6 @@ const Voting = () => {
 			</div>
 		</StatusProvider>
 	);
-	*/
 }
 
 export default Voting;

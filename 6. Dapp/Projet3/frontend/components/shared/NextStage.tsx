@@ -15,23 +15,17 @@ import { BaseError, useAccount, useWriteContract, useWaitForTransactionReceipt }
 import { useEffect } from "react";
 
 import { contractAbi, contractAddress, contractAdmin, WorkflowStatus } from "@/constants";
-import { useStatusContext } from "@/contexts/StatusContext";
+import { useStatusContext } from "@/contexts/StatusProvider";
 
 const NextStage = () => {
 
 	const {address} = useAccount();
-	const {status, refetchStatus} = useStatusContext();
+	const {status, isLoading: statusIsLoading} = useStatusContext();
 
 	const {data: hash, error, isPending, writeContract} = useWriteContract();
 	const {isLoading, isSuccess, error: errorConfirmation} = useWaitForTransactionReceipt({
 		hash	// Transaction's hash to watch (string)
 	})
-
-	useEffect(() => {
-		if (isSuccess) {
-			refetchStatus();
-		}
-	}, [isSuccess]);
 
 	useEffect(() => {
 		if (isSuccess) {
