@@ -11,7 +11,7 @@ type StatusContextType = {
 
 export const StatusContext = createContext<StatusContextType>({
   status: null,
-  isLoading: true,
+  isLoading: true
 });
 
 export const useStatusContext = () => useContext(StatusContext);
@@ -48,4 +48,4 @@ export const StatusProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </StatusContext.Provider>
   );
-};
+}

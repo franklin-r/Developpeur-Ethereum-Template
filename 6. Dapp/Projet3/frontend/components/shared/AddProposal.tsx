@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 
 import { contractAbi, contractAddress } from "@/constants";
 
-const AddProposal = () => {
+const AddProposal = ({getEvents}: {getEvents: () => void}) => {
 
 	const [newProposal, setNewProposal] = useState<string>("");
 	const [inputError, setInputError] = useState<string | null>(null);
@@ -47,18 +47,23 @@ const AddProposal = () => {
 
 	useEffect(() => {
 		if (isSuccess) {
-			toast.success(`Transaction confirmed: ${hash}`)
+			toast.success(`Transaction confirmed: ${hash}`);
+			refetchEverything();
 		}
 		if (errorConfirmation) {
-			toast.error("Transaction failed.")
+			toast.error("Transaction failed.");
 		}
 		if (isLoading) {
-			toast.info("Waiting for block confirmation.")
+			toast.info("Waiting for block confirmation.");
 		}
 		if (error) {
-			toast.error(`Transaction cancelled: ${(error as BaseError).shortMessage || error.message}`)
+			toast.error(`Transaction cancelled: ${(error as BaseError).shortMessage || error.message}`);
 		}
 	}, [isSuccess, errorConfirmation, isLoading, error]);
+
+	const refetchEverything = async () => {
+		await getEvents();
+	}
 
 	const handleAddProposal = async () => {
 		if (!newProposal || newProposal.trim().length === 0) {

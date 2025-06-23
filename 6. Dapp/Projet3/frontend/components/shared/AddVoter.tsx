@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 
 import { contractAbi, contractAddress, contractAdmin } from "@/constants";
 
-const AddVoter = () => {
+const AddVoter = ({getEvents}: {getEvents: () => void}) => {
 
 	const [newAddr, setNewAddr] = useState<string>("");
 	const [inputError, setInputError] = useState<string | null>(null);
@@ -48,6 +48,7 @@ const AddVoter = () => {
 	useEffect(() => {
 		if (isSuccess) {
 			toast.success(`Transaction confirmed: ${hash}`);
+			refetchEverything();
 		}
 		if (errorConfirmation) {
 			toast.error("Transaction failed.");
@@ -59,6 +60,10 @@ const AddVoter = () => {
 			toast.error(`Transaction cancelled: ${(error as BaseError).shortMessage || error.message}`);
 		}
 	}, [isSuccess, errorConfirmation, isLoading, error]);
+
+	const refetchEverything = async () => {
+		await getEvents();
+	}
 
 	const handleAddVoter = async () => {
 		if (!newAddr || !isAddress(newAddr)) {

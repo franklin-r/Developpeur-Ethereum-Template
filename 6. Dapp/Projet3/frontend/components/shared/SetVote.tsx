@@ -17,7 +17,7 @@ import { useState, useEffect } from "react";
 
 import { contractAbi, contractAddress } from "@/constants";
 
-const SetVote = () => {
+const SetVote = ({getEvents}: {getEvents: () => void}) => {
 
 	const [proposalId, setProposalId] = useState<string>("");
 	const [inputError, setInputError] = useState<string | null>(null);
@@ -45,18 +45,23 @@ const SetVote = () => {
 
 	useEffect(() => {
 		if (isSuccess) {
-			toast.success(`Transaction confirmed: ${hash}`)
+			toast.success(`Transaction confirmed: ${hash}`);
+			refetchEverything();
 		}
 		if (errorConfirmation) {
-			toast.error("Transaction failed.")
+			toast.error("Transaction failed.");
 		}
 		if (isLoading) {
-			toast.info("Waiting for block confirmation.")
+			toast.info("Waiting for block confirmation.");
 		}
 		if (error) {
-			toast.error(`Transaction cancelled: ${(error as BaseError).shortMessage || error.message}`)
+			toast.error(`Transaction cancelled: ${(error as BaseError).shortMessage || error.message}`);
 		}
 	}, [isSuccess, errorConfirmation, isLoading, error]);
+
+	const refetchEverything = async () => {
+		await getEvents();
+	}
 
 	const handleSetVote = async () => {
 		if (!proposalId || isNaN(Number(proposalId)) || Number(proposalId) < 0) {

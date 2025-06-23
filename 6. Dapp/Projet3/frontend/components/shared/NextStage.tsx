@@ -17,10 +17,10 @@ import { useEffect } from "react";
 import { contractAbi, contractAddress, contractAdmin, WorkflowStatus } from "@/constants";
 import { useStatusContext } from "@/contexts/StatusProvider";
 
-const NextStage = () => {
+const NextStage = ({getEvents}: {getEvents: () => void}) => {
 
 	const {address} = useAccount();
-	const {status, isLoading: statusIsLoading} = useStatusContext();
+	const {status} = useStatusContext();
 
 	const {data: hash, error, isPending, writeContract} = useWriteContract();
 	const {isLoading, isSuccess, error: errorConfirmation} = useWaitForTransactionReceipt({
@@ -30,6 +30,7 @@ const NextStage = () => {
 	useEffect(() => {
 		if (isSuccess) {
 			toast.success(`Transaction confirmed: ${hash}`);
+			refetchEverything();
 		}
 		if (errorConfirmation) {
 			toast.error("Transaction failed.");
@@ -41,6 +42,10 @@ const NextStage = () => {
 			toast.error(`Transaction cancelled: ${(error as BaseError).shortMessage || error.message}`);
 		}
 	}, [isSuccess, errorConfirmation, isLoading, error]);
+
+	const refetchEverything = async () => {
+		await getEvents();
+	}
 
 	const handleMoveToNextStage = async () => {
 		let functionName: string;

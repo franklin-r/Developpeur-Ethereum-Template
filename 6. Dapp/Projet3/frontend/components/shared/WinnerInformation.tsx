@@ -7,13 +7,16 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
-import { contractAddress, contractAbi } from "@/constants";
+import { contractAddress, contractAbi, WorkflowStatus } from "@/constants";
 
 import { useAccount, useReadContract } from "wagmi";
+
+import { useStatusContext } from "@/contexts/StatusProvider";
 
 const WinnerInformation = () => {
 
 	const {address} = useAccount();
+	const {status} = useStatusContext();
 	
 	const {data, isPending} = useReadContract({
 		address: contractAddress,
@@ -29,10 +32,10 @@ const WinnerInformation = () => {
 			</CardHeader>
 			<CardContent>
 				<div>
-					{isPending ? (
-						"Loading..."
-					) : (
+					{!isPending && status && status === WorkflowStatus.VotesTallied ? (
 						data?.toString()
+					) : (
+						"Loading..."
 					)}
 				</div>
 			</CardContent>

@@ -8,24 +8,33 @@ import NextStage from "./NextStage";
 
 import { useAccount } from "wagmi";
 
-import { contractAdmin } from "@/constants";
+import { useStatusContext } from "@/contexts/StatusProvider";
 
-const Action = () => {
+import { contractAdmin, WorkflowStatus } from "@/constants";
+
+const Action = ({getEvents}: {getEvents: () => void}) => {
 
 	const {address} = useAccount();
+	const {status} = useStatusContext();
 
 	return (
 		<>
 			{address === contractAdmin && (
 				<div>
-					<div className="mb-5"><NextStage /></div>
-					<div className="mb-5"><AddVoter /></div>
+					<div className="mb-5"><NextStage getEvents={getEvents} /></div>
+					{status === WorkflowStatus.RegisteringVoters && (
+						<div className="mb-5"><AddVoter getEvents={getEvents} /></div>
+					)}
 				</div>
 			)}
-			<div className="mb-5"><AddProposal /></div>
-			<div className="mb-5"><SetVote /></div>
-			{address === contractAdmin && (
-				<div className="mb-5"><TallyVotes /></div>
+			{status === WorkflowStatus.ProposalsRegistrationStarted && (
+				<div className="mb-5"><AddProposal getEvents={getEvents} /></div>
+			)}
+			{status === WorkflowStatus.VotingSessionStarted && (
+				<div className="mb-5"><SetVote getEvents={getEvents} /></div>
+			)}
+			{address === contractAdmin && status === WorkflowStatus.VotingSessionEnded && (
+				<div className="mb-5"><TallyVotes getEvents={getEvents} /></div>
 			)}
 		</>
 	)

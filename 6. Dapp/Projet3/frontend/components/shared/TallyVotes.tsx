@@ -16,7 +16,7 @@ import { useEffect } from "react";
 
 import { contractAbi, contractAddress, contractAdmin, WorkflowStatus } from "@/constants";
 
-const TallyVotes = () => {
+const TallyVotes = ({getEvents}: {getEvents: () => void}) => {
 
 	const {address} = useAccount();
 
@@ -28,6 +28,7 @@ const TallyVotes = () => {
 	useEffect(() => {
 		if (isSuccess) {
 			toast.success(`Transaction confirmed: ${hash}`);
+			refetchEverything();
 		}
 		if (errorConfirmation) {
 			toast.error("Transaction failed.");
@@ -39,6 +40,10 @@ const TallyVotes = () => {
 			toast.error(`Transaction cancelled: ${(error as BaseError).shortMessage || error.message}`);
 		}
 	}, [isSuccess, errorConfirmation, isLoading, error]);
+
+	const refetchEverything = async () => {
+		await getEvents();
+	}
 
 	const handleTallyVotes = async () => {
 		writeContract({
