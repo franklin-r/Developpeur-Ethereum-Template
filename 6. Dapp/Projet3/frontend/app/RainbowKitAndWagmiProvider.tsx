@@ -8,7 +8,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import {
-  hardhat
+  sepolia
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -18,7 +18,7 @@ import {
 const config = getDefaultConfig({
   appName: 'Voting DApp',
   projectId: '3413d34ab1365315474c271eed448d4f',
-  chains: [hardhat],
+  chains: [sepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

@@ -6,8 +6,8 @@ export enum WorkflowStatus {
 	VotingSessionEnded,
 	VotesTallied
 };
-export const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-export const contractAdmin = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+export const contractAddress = "0x147f0893a2D5F415127F797A0c48D05E46688c33";
+export const contractAdmin = "0x5941fd401ec7580c77ac31E45c9f59436a2f8C1b";
 export const contractAbi = [
 	{
 		"inputs": [],
