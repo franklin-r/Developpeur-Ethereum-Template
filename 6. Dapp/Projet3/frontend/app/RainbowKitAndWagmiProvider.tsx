@@ -17,7 +17,7 @@ import {
 
 const config = getDefaultConfig({
   appName: 'Voting DApp',
-  projectId: '3413d34ab1365315474c271eed448d4f',
+  projectId: '705b133d3c288e456c4a626566e34f32',
   chains: [sepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
